@@ -14,9 +14,6 @@
 
   "fwd_syncs":2,
   "bwd_syncs":2,
-
-  "save_folder":"./results",
-  "save_name":llemma_7b_4_2_2_V,
 }
 
 # test command
