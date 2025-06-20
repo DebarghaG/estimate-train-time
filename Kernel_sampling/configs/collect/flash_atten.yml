@@ -1,0 +1,33 @@
+{
+  "module_name": "target_functions",
+  "kernel_name": "flash_atten",
+  "function_name": "flash_atten",
+  "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
+  "targets": [['_flash_attn_forward'], ['autograd::engine::evaluate_function: FlashAttnFuncBackward']],
+  "first_n_column": 5, 
+
+  # mp, b, h, l, dim
+  "starts":[8, 4, 16, 1024, 2048],
+  "steps":[2, 2, 8, 512, 512],
+  "ends":[16, 8, 80, 5120, 8192],
+  "operators":['mul', 'mul', 'add', 'add', 'add'],
+  
+  # "warmup_shapes":[1, 16, 16, 4096, 4096],
+  "warmup_shapes":[1, 4, 16, 1024, 2048],
+
+  "wait": 2,
+  "warmup": 2,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  # for get_profiler and get_one
+  # "shapes":[1, 16, 16, 2048, 1024],
+  "shapes":[1, 4, 16, 1024, 2048],
+
+  # run_function, get_profiler, get_one, get_all
+  "run": "get_all"
+}
+
+# test command
+# python sampling_controller.py --config_path ./configs/test/flash_atten.yml --precision fp16 

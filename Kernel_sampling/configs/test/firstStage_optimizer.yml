@@ -1,0 +1,32 @@
+{
+  "module_name": "target_functions",
+  "kernel_name": "firstStage_optimizer",
+  "function_name": "firstStage_optimizer",
+  "columns_name": ['mp', 'dim', 'encoders', 'dur(us)'],
+  "targets": [['torch/optim/optimizer.py(135): wrapper']],
+  "first_n_column": 3, 
+
+  # 'mp', 'dim', 'encoders'
+  "starts":[1, 2048, 4],
+  "steps":[2, 512, 1],
+  "ends":[16, 8192, 12],
+  "operators":['mul', 'add', 'add'],
+
+  "warmup_shapes":[1, 2048, 5],
+
+  "wait": 1,
+  "warmup": 1,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  # for get_profiler and get_one
+  # 'mp', 'dim', 'encoders'
+  "shapes":[2, 4096, 8],
+
+  # run_function, get_profiler, get_one, get_all
+  "run":"get_one"
+}
+
+# test command
+# python sampling_controller.py --config_path ./configs/test/firstStage_optimizer.yml --precision fp16 

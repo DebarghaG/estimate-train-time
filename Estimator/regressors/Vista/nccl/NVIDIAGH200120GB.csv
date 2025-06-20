@@ -1,0 +1,11 @@
+GPU,Function,Precision,Nodes,GPUsPerNode,Best_model,Best_config,Best_error%
+NVIDIAGH200120GB,allgather_large,fp16,2,1,rforest,"{'max_depth': None, 'max_features': None, 'min_samples_leaf': 4, 'min_samples_split': 10, 'n_estimators': 200}",0.10135169041737023
+NVIDIAGH200120GB,allgather_large,fp16,4,1,xgboost,"{'colsample_bytree': 0.8, 'gamma': 0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 5, 'n_estimators': 100, 'subsample': 1.0}",17.024609456875744
+NVIDIAGH200120GB,allgather_large,fp16,8,1,rforest,"{'max_depth': 10, 'max_features': None, 'min_samples_leaf': 4, 'min_samples_split': 10, 'n_estimators': 200}",3.2589985531185457
+NVIDIAGH200120GB,allreduce,fp16,2,1,rforest,"{'max_depth': 10, 'max_features': None, 'min_samples_leaf': 4, 'min_samples_split': 10, 'n_estimators': 500}",0.006392238554706442
+NVIDIAGH200120GB,allreduce,fp16,4,1,rforest,"{'max_depth': None, 'max_features': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 500}",0.002700392406822183
+NVIDIAGH200120GB,allreduce,fp16,8,1,rforest,"{'max_depth': 10, 'max_features': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 300}",0.0029989005520644394
+NVIDIAGH200120GB,allreduce_large,fp16,2,1,rforest,"{'max_depth': None, 'max_features': None, 'min_samples_leaf': 2, 'min_samples_split': 2, 'n_estimators': 200}",0.0077534083911155365
+NVIDIAGH200120GB,allreduce_large,fp16,4,1,rforest,"{'max_depth': 10, 'max_features': None, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}",0.004355773349013273
+NVIDIAGH200120GB,allreduce_large,fp16,8,1,xgboost,"{'colsample_bytree': 0.8, 'gamma': 0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 100, 'subsample': 0.8}",0.015708392462103097
+NVIDIAGH200120GB,p2p,fp16,2,1,xgboost,"{'colsample_bytree': 0.8, 'gamma': 0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 10, 'n_estimators': 100, 'subsample': 1.0}",0.043928764581611095

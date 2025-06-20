@@ -1,0 +1,8 @@
+pytorch 
+pandas
+ijson
+pyyaml
+flash-attn==2.5.6
+deepspeed@git+https://github.com/EleutherAI/DeeperSpeed.git@91d1c55ba037b5ada99ae14884dff87a4dc5b9ea#egg=deepspeed
+scikit-learn
+xgboost

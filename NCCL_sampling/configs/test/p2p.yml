@@ -1,0 +1,42 @@
+{
+  "module_name": "nccl_functions",
+  "kernel_name": "p2p",
+  "function_name": "p2p",
+  "columns_name": ['shape', 'nodes', 'GPUsPerNode', 'dur(us)'],
+  "targets": [['c10d::send']],
+  "first_n_column": 1, 
+
+  # shape per transfer
+  # 20B: 6144x2048x4 = 50331648
+  # 13B: 5120x2048x4 = 41943040
+  # 7B: 4096x4096x4 = 16777216 / 8 = 2097152
+  # old
+  # "starts":[20971520],
+  # "steps":[65536],
+  # "ends":[134217728],
+  # "operators":['add'],
+
+  # compliment
+  "starts":[2097152],
+  "steps":[65536],
+  "ends":[20971520],
+  "operators":['add'],
+
+
+  # "warmup_shapes":[16, 2048, 2048],
+  "warmup_shapes":[67108864],
+
+  "wait": 4,
+  "warmup": 6,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  # for get_profiler and get_one
+  # "shapes":[16, 2048, 2048],
+  "shapes":[67108864],
+
+}
+
+# test command
+# python collectorController.py --config_path ./configs/baddbmm.yml --precision fp32 --device_num 0

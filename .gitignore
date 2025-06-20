@@ -1,0 +1,28 @@
+# Python
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+.venv/
+venv/
+
+# Jupyter
+**/.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Logs and caches
+#*.log
+#.cache/
+
+**/build/
+
+**/temp_profilings/
+
+# regressors
+*.pkl
+*.json

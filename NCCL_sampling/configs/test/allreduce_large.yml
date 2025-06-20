@@ -1,0 +1,31 @@
+{
+  "module_name": "nccl_functions",
+  "kernel_name": "allreduce_large",
+  "function_name": "allreduce",
+  "columns_name": ['shape', 'nodes', 'GPUsPerNode', 'dur(us)'],
+  "targets": [['c10d::allreduce_']],
+  "first_n_column": 1, 
+
+  # shape per transfer
+  "starts":[134217728],
+  "steps":[600000],
+  "ends":[1200000000],
+  "operators":['add'],
+
+  # "warmup_shapes":[16, 2048, 2048],
+  "warmup_shapes":[67108864],
+
+  "wait": 4,
+  "warmup": 6,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  # for get_profiler and get_one
+  # "shapes":[16, 2048, 2048],
+  "shapes":[67108864],
+
+}
+
+# test command
+# python collectorController.py --config_path ./configs/baddbmm.yml --precision fp32 --device_num 0
