@@ -16,17 +16,17 @@ In order to run Predictor, the training configurations, computing and communicat
 
 
 ### Operator Sampling
-The computing operator sampling moudule needs the configurations of each operator as a yaml file. "/configs/collect" or "/configs/test" provide detials about the config file.
+The computing operator sampling module requires the configuration of each operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files.
    ```bash
    cd Kernel_sampling
    ## For example sampling the baddbmm with fp16 
    python sampling_controller.py --config_path ./configs/collect/baddbmm.yml --precision fp16 
    ```
-The file "run_collection.sh" and "run_test.sh" have detials about how to test and collection the sampling data of each operators. "--parts" means how many parts do you want to split the sampling work and "--part" measn the process doing the job of which part of parts.
+The files "run_collection.sh" and "run_test.sh" contain details about how to test and collect the sampling data for each operator. The "--parts" option specifies how many parts the sampling work should be split into, and the "--part" option specifies which part of the work is being processed on current GPU.
 
 
 ### Communication Sampling
-As same as the Operator Sampling, this part also needs the configurations of each communication operator as a yaml file. "/configs/collect" or "/configs/test" provide detials about the config file. The example of collecting p2p communication among two nodes and only active one GPU of each node.
+This part, like the Operator Sampling, also requires the configuration of each communication operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files. The example shows how to collect P2P communication between two nodes, with only one GPU being active on each node.
    ```bash
     # Get master address and port
     nodes=( $( scontrol show hostnames $SLURM_JOB_NODELIST ) )
