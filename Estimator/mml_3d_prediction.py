@@ -227,7 +227,7 @@ def one_batch_predict(configs_path):
     fwd_syncs = configs['fwd_syncs']
     bwd_syncs = configs['bwd_syncs']
 
-    get_operator_statistics(predictor, gpu_name, operator_data_folder, nccl_data_folder, training_config, comm_bucket, encoder_layers_list, function_list, encoder_function_list, layernorm_name, fwd_syncs, bwd_syncs)
+    return get_operator_statistics(predictor, gpu_name, operator_data_folder, nccl_data_folder, training_config, comm_bucket, encoder_layers_list, function_list, encoder_function_list, layernorm_name, fwd_syncs, bwd_syncs)
 
 
 def parse_arguments():
