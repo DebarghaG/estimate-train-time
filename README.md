@@ -1,10 +1,16 @@
 # Distributed Training Estimator of LLMs
-Time cost estimator of LLM's distributed training
-
+This component implements a time cost estimator for distributed training of large language models (LLMs). It is used to predict the time required to train one batch across multiple GPUs. The predictor module only requires at least a CPU. The computation sampling module needs one or more GPUs, while the communication sampling module requires multiple GPUs, depending on your computing platform.
 - AI4CI
 
 
 # Tutorials
+
+### Evnviroment
+In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the "example_training_config" folder, there are two example configuration YAML files. The "regressors" folder contains the required data obtained from two real clusters as examples. This can run on any CPU from the past five years, as it only relies on Random Forest and XGBoost.
+   ```bash
+   cd distributed_training_estimator_of_LLM
+   pip install -r requirements.txt
+   ```
 
 ### Predictor
 In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the "example_training_config" folder, there are two example configuration YAML files. The "regressors" folder contains the required data obtained from two real clusters as examples.
@@ -13,10 +19,19 @@ In order to run Predictor, the training configurations, computing and communicat
    python mml_3d_prediction.py --config_path <path_to_config.yml>
    ```
 
+The output can also be obtained using the function.
+   ```python
+   from mml_3d_prediction import one_batch_predict
+
+   configs_path = 'path_to/training_config.yml'
+   one_batch_cost = one_batch_predict(configs_path)   # microseconds
+   ```
+
+The output is the estimated time cost of a single parameter update, measured in microseconds.
 
 
-### Operator Sampling
-The computing operator sampling module requires the configuration of each operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files.
+### Computation Sampling
+The computing operator sampling module requires the configuration of each operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files. This can be run on a single GPU or multiple GPUs.
    ```bash
    cd Kernel_sampling
    ## For example sampling the baddbmm with fp16 
@@ -26,7 +41,7 @@ The files "run_collection.sh" and "run_test.sh" contain details about how to tes
 
 
 ### Communication Sampling
-This part, like the Operator Sampling, also requires the configuration of each communication operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files. The example shows how to collect P2P communication between two nodes, with only one GPU being active on each node.
+This part, like the Operator Sampling, also requires the configuration of each communication operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files. The example shows how to collect P2P communication between two nodes, with only one GPU being active on each node. 
    ```bash
     # Get master address and port
     nodes=( $( scontrol show hostnames $SLURM_JOB_NODELIST ) )
