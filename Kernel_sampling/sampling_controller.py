@@ -135,10 +135,13 @@ def get_one(configs, args):
 
     dur_list = data_collect_one(configs, args, shapeGenerator, profiler_folder_path)
 
-    if dur_list is not None:
-        print(f'{kernel_name}:    input_shape:{shapes}     timecost(us) [fwd, bwd]: {dur_list}')
-    else:
-        print(f'{kernel_name} can not get runtime.')
+    current_time = sampling_tools.get_current_only_time_string()
+
+    with open('./test_log.txt', 'a') as f:
+        if dur_list is not None:
+            print(f'[{current_time}]{kernel_name}:    input_shape:{shapes}     timecost(us) [fwd, bwd]: {dur_list}', file=f)
+        else:
+            print(f'[{current_time}]{kernel_name} can not get runtime.', file=f)
 
 
 def get_profiler(configs, args):
@@ -233,9 +236,11 @@ def profiler_reader(profiler_folder_path, targets, shapeGenerator):
     dur_lists_temp = []
     for target in targets:
         dur_list = sampling_tools.get_GPU_runtime_list(profiler_file_path, target)
+        with open('./test_log.txt', 'a') as f:
+            print(f'the dur list is :{dur_list}', file=f)
         dur_list.sort()
         dur_lists_temp.append(dur_list)
-        # print(f'the dur list is :{dur_list}')
+        
     min_len = min([len(x) for x in dur_lists_temp])
 
     if min_len > 0:

@@ -1,0 +1,31 @@
+{
+  "module_name": "target_functions",
+  "kernel_name": "gelu",
+  "function_name": "gelu",
+  "columns_name": ['mp', 'b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
+  "targets": [['aten::gelu'], ['GeluBackward0']],
+  "first_n_column": 4, 
+
+  # mp, b, l, dim
+  "starts":[1, 2, 1024, 2048],
+  "steps":[2, 2, 512, 512],
+  "ends":[16, 8, 5120, 8192],
+  "operators":['mul', 'mul', 'add', 'add'],
+  
+  "warmup_shapes":[1, 8, 4096, 4096],
+
+  "wait": 4,
+  "warmup": 6,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  "shapes":[1, 16, 2048, 1024],
+
+  # run_function, get_profiler, get_one, get_all
+  "run": "get_all"
+}
+
+# test command
+# python collectorController.py --config_path ./configs/gelu.yml --precision fp32 --device_num 0
+# python sampling_controller.py --config_path ./configs/test/gelu.yml --precision fp16 

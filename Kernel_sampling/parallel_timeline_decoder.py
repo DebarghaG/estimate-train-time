@@ -60,10 +60,11 @@ class TimelineDecoder:
         results = []
         for item in json_data:
             values = self.get_nested_value(item, key_path)
-
             if isinstance(values, list) and any(v in target_values for v in values if isinstance(v, (int, float, str))):
                 results.append(item)
-            elif isinstance(values, (int, float, str)) and values in target_values:
+            elif isinstance(values, (int, float)) and values in target_values:
+                results.append(item)
+            elif isinstance(values, str) and any(target in values for target in target_values):
                 results.append(item)
         return results
 

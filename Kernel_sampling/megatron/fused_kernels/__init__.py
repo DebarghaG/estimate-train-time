@@ -1,7 +1,7 @@
-# Copyright (c) 2024, EleutherAI
+# Copyright (c) 2025, EleutherAI
 # This file is based on code by the authors denoted below and has been modified from its original version.
 #
-# Copyright (c) 2024, NVIDIA CORPORATION.  All rights reserved.
+# Copyright (c) 2025, NVIDIA CORPORATION.  All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,10 +46,10 @@ def load(neox_args=None):
             if int(bare_metal_minor) >= 1:
                 cc_flag.append("-gencode")
                 cc_flag.append("arch=compute_86,code=sm_86")
-            if int(bare_metal_minor) >= 4:
+            elif int(bare_metal_minor) >= 4:
                 cc_flag.append("-gencode")
                 cc_flag.append("arch=compute_87,code=sm_87")
-            if int(bare_metal_minor) >= 8:
+            elif int(bare_metal_minor) >= 8:
                 cc_flag.append("-gencode")
                 cc_flag.append("arch=compute_89,code=sm_89")
         if int(bare_metal_major) >= 12:

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-root_path="."
+export TORCH_EXTENSIONS_DIR=/mnt/rds/VipinRDS/VipinRDS/users/bxz297/A100/torch_extensions
+
+root_path="/mnt/rds/VipinRDS/VipinRDS/users/bxz297/H200/distributed_training_estimator_of_LLM/Kernel_sampling"
 
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/baddbmm.yml --precision fp16
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/bmm.yml --precision fp16

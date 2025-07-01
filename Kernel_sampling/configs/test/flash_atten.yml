@@ -3,7 +3,7 @@
   "kernel_name": "flash_atten",
   "function_name": "flash_atten",
   "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['_flash_attn_forward'], ['autograd::engine::evaluate_function: FlashAttnFuncBackward']],
+  "targets": [['flash_attn::_flash_attn_forward'], ['autograd::engine::evaluate_function: FlashAttnFuncBackward']],
   "first_n_column": 5, 
 
   # mp, b, h, l, dim
@@ -26,7 +26,7 @@
   "shapes":[1, 4, 16, 1024, 2048],
 
   # run_function, get_profiler, get_one, get_all
-  "run": "get_profiler"
+  "run": "get_one"
 }
 
 # test command

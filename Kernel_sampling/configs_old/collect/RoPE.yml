@@ -1,0 +1,31 @@
+{
+  "module_name": "target_functions",
+  "kernel_name": "RoPE",
+  "function_name": "RoPE",
+  "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
+  "targets": [['apply_rotary_pos_emb'], ['built-in method run_backward of torch', ['autograd::engine::evaluate_function: torch::jit::(anonymous namespace)::DifferentiableGraphBackward', 'autograd::engine::evaluate_function: NegBackward0', 'autograd::engine::evaluate_function: SliceBackward0']]],
+  "first_n_column": 5, 
+
+  # mp, b, h, l, dim
+  "starts":[1, 4, 16, 1024, 2048],
+  "steps":[2, 2, 8, 512, 512],
+  "ends":[16, 8, 80, 5120, 8192],
+  "operators":['mul', 'mul', 'add', 'add', 'add'],
+  
+  "warmup_shapes":[1, 16, 16, 4096, 4096],
+
+  "wait": 4,
+  "warmup": 6,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  # for get_profiler and get_one
+  "shapes":[1, 16, 16, 2048, 1024],
+
+  # run_function, get_profiler, get_one, get_all
+  "run": "get_all"
+}
+
+# test command
+# python sampling_controller.py --config_path ./configs/test/RoPE.yml --precision fp16 

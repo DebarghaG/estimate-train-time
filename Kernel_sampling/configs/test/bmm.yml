@@ -3,7 +3,7 @@
   "kernel_name": "bmm",
   "function_name": "bmm",
   "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['built-in method bmm of', 'aten::bmm'], ['BmmBackward0']],
+  "targets": [['built-in method bmm of', 'aten::bmm'], ['autograd::engine::evaluate_function: BmmBackward0', 'BmmBackward0']],
   "first_n_column": 5, 
 
   # mp, b, h, l, dim

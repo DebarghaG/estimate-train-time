@@ -1,0 +1,38 @@
+{
+  "module_name": "target_functions",
+  "kernel_name": "bmm",
+  "function_name": "bmm",
+  "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
+  "targets": [['built-in method bmm of', 'aten::bmm'], ['BmmBackward0']],
+  "first_n_column": 5, 
+
+  # mp, b, h, l, dim
+  "starts":[1, 4, 16, 1024, 2048],
+  "steps":[2, 2, 8, 512, 512],
+  "ends":[16, 8, 80, 5120, 8192],
+  "operators":['mul', 'mul', 'add', 'add', 'add'],
+  
+  # mp [1 ~ 16]  mul 2, 5, 
+  # b [2 ~ 8] mul 2, 3 
+  # h [16 ~ 80] add 8, 8  
+  # l [1024 ~ 5120] add 512, 8
+  # dim [2048 ~ 8192] add 512, 12 
+  # 11,520 in total
+
+  "warmup_shapes":[1, 8, 8, 2048, 2048],
+
+  "wait": 4,
+  "warmup": 6,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  # for get_profiler and get_one
+  "shapes":[2, 16, 16, 2048, 1024],
+
+  # run_function, get_profiler, get_one, get_all
+  "run": "get_one"
+}
+
+# test command
+# python sampling_controller.py --config_path ./configs/test/bmm.yml --precision fp32 --precision fp16 

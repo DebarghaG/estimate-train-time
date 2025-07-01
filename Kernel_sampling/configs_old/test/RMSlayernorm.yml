@@ -1,0 +1,30 @@
+{
+  "module_name": "target_functions",
+  "kernel_name": "RMSlayernorm",
+  "function_name": "RMSlayernorm",
+  "columns_name": ['b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
+  "targets": [['nn.Module: RMSNorm', ['aten::norm', 'aten::mul', 'aten::add', 'aten::div']], ['torch/autograd/__init__.py(103): backward', ['autograd::engine::evaluate_function: MulBackward0', 'autograd::engine::evaluate_function: DivBackward0', 'autograd::engine::evaluate_function: NormBackward']]],
+  "first_n_column": 3, 
+
+  # b, l, dim
+  "starts":[2, 1024, 2048],
+  "steps":[2, 512, 512],
+  "ends":[8, 5120, 8192],
+  "operators":['mul', 'add', 'add'],
+
+  "warmup_shapes":[16, 4096, 4096],
+
+  "wait": 4,
+  "warmup": 6,
+
+  # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
+  "active": 10,
+
+  "shapes":[4, 2048, 5120],
+
+  # run_function, get_profiler, get_one, get_all
+  "run": "get_one"
+}
+
+# test command
+# python sampling_controller.py --config_path ./configs/test/RMSlayernorm.yml --precision fp16 --device_num 0
