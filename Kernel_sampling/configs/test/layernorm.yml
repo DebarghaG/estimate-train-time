@@ -3,7 +3,7 @@
   "kernel_name": "layernorm",
   "function_name": "layernorm",
   "columns_name": ['b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::native_layer_norm'], ['aten::native_layer_norm_backward']],
+  "targets": [['built-in method layer_norm of type object', 'aten::native_layer_norm'], ['aten::native_layer_norm_backward']],
   "first_n_column": 3, 
 
   # b, l, dim

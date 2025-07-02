@@ -3,7 +3,7 @@
   "kernel_name": "linear4",
   "function_name": "linear4",
   "columns_name": ['mp', 'b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::linear'], ['MmBackward0']],
+  "targets": [['aten::linear'], ['autograd::engine::evaluate_function: MmBackward0']],
   "first_n_column": 4, 
 
   # mp, b, l, dim

@@ -3,7 +3,7 @@
   "kernel_name": "baddbmm",
   "function_name": "baddbmm",
   "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::baddbmm'], ['BaddbmmBackward0']],
+  "targets": [['built-in method baddbmm of type object', 'aten::baddbmm'], ['autograd::engine::evaluate_function: BaddbmmBackward0']],
   "first_n_column": 5, 
 
   # mp, b, h, l, dim

@@ -46,6 +46,8 @@ import traceback
 
 # Using Zero1
 
+TEMP_PATH_FOR_PROFILER = '/dev/shm'
+
 def get_shapeGenerator(configs, args):
     kernel_name = configs['kernel_name']
     starts = configs['starts']
@@ -83,7 +85,7 @@ def get_all(configs, args):
     os.makedirs(log_folder, exist_ok=True)
     log_path = log_folder + '/' + torch.cuda.get_device_name(0).replace(' ', '') + '_' + kernel_name + '_' + precision + '_' + str(parts) + '_' + str(part) + '.txt' 
 
-    profiler_folder = './temp_profilings'
+    profiler_folder = TEMP_PATH_FOR_PROFILER
     os.makedirs(profiler_folder, exist_ok=True)
 
 
@@ -122,7 +124,7 @@ def get_one(configs, args):
     kernel_name = configs['kernel_name']
     precision = args.precision
 
-    profiler_folder = './temp_profilings'
+    profiler_folder = TEMP_PATH_FOR_PROFILER
     os.makedirs(profiler_folder, exist_ok=True)
 
     shapes = configs['shapes']

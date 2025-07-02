@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export TORCH_EXTENSIONS_DIR=/mnt/rds/VipinRDS/VipinRDS/users/bxz297/A100/torch_extensions
+export TORCH_EXTENSIONS_DIR=/mnt/rds/VipinRDS/VipinRDS/users/bxz297/H200/torch_extensions
 
 root_path="/mnt/rds/VipinRDS/VipinRDS/users/bxz297/H200/distributed_training_estimator_of_LLM/Kernel_sampling"
 

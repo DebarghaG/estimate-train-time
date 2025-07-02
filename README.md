@@ -5,15 +5,16 @@ This component implements a time cost estimator for distributed training of larg
 
 # Tutorials
 
-### Evnviroment
-In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the "example_training_config" folder, there are two example configuration YAML files. The "regressors" folder contains the required data obtained from two real clusters as examples. This can run on any CPU from the past five years, as it only relies on Random Forest and XGBoost.
+### Enviroment
+The software environment is determined by the specific training frameworks employed, such as the versions of CUDA, PyTorch, FlashAttention, and others. While the `requirements.txt` file enumerates the necessary packages, it is the user's responsibility to specify the appropriate versions required for their use case.
+
    ```bash
    cd distributed_training_estimator_of_LLM
    pip install -r requirements.txt
    ```
 
 ### Predictor
-In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the "example_training_config" folder, there are two example configuration YAML files. The "regressors" folder contains the required data obtained from two real clusters as examples.
+In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the `example_training_config` folder, there are two example configuration YAML files. The `regressors` folder contains the required data obtained from two real clusters as examples. This can run on any CPU from the past five years, as it only relies on Random Forest and XGBoost.
    ```bash
    cd Estimator
    python mml_3d_prediction.py --config_path <path_to_config.yml>
@@ -31,17 +32,17 @@ The output is the estimated time cost of a single parameter update, measured in 
 
 
 ### Computation Sampling
-The computing operator sampling module requires the configuration of each operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files. This can be run on a single GPU or multiple GPUs.
+The computing operator sampling module requires the configuration of each operator in the form of a YAML file. The `/configs/collect` and `/configs/test` directories provide details about the configuration files. This can be run on a single GPU or multiple GPUs.
    ```bash
    cd Kernel_sampling
    ## For example sampling the baddbmm with fp16 
    python sampling_controller.py --config_path ./configs/collect/baddbmm.yml --precision fp16 
    ```
-The files "run_collection.sh" and "run_test.sh" contain details about how to test and collect the sampling data for each operator. The "--parts" option specifies how many parts the sampling work should be split into, and the "--part" option specifies which part of the work is being processed on current GPU.
+The files `run_collection.sh` and `run_test.sh` contain details about how to test and collect the sampling data for each operator. The `--parts` option specifies how many parts the sampling work should be split into, and the `--part` option specifies which part of the work is being processed on current GPU.
 
 
 ### Communication Sampling
-This part, like the Operator Sampling, also requires the configuration of each communication operator in the form of a YAML file. The "/configs/collect" and "/configs/test" directories provide details about the configuration files. The example shows how to collect P2P communication between two nodes, with only one GPU being active on each node. 
+This part, like the Operator Sampling, also requires the configuration of each communication operator in the form of a YAML file. The `/configs/collect` and `/configs/test` directories provide details about the configuration files. The example shows how to collect P2P communication between two nodes, with only one GPU being active on each node. 
    ```bash
     # Get master address and port
     nodes=( $( scontrol show hostnames $SLURM_JOB_NODELIST ) )

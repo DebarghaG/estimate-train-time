@@ -3,7 +3,7 @@
   "kernel_name": "flash_atten",
   "function_name": "flash_atten",
   "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['flash_attn::_flash_attn_forward'], ['autograd::engine::evaluate_function: FlashAttnFuncBackward']],
+  "targets": [['built-in method apply of FunctionMeta object', 'FlashAttnFunc'], ['autograd::engine::evaluate_function: FlashAttnFuncBackward']],
   "first_n_column": 5, 
 
   # mp, b, h, l, dim

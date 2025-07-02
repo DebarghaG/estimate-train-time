@@ -3,7 +3,7 @@
   "kernel_name": "gelu",
   "function_name": "gelu",
   "columns_name": ['mp', 'b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::gelu'], ['GeluBackward0']],
+  "targets": [['built-in function gelu', 'aten::gelu'], ['autograd::engine::evaluate_function: GeluBackward0']],
   "first_n_column": 4, 
 
   # mp, b, l, dim

@@ -3,7 +3,7 @@
   "kernel_name": "softmax",
   "function_name": "softmax",
   "columns_name": ['mp', 'b', 'h', 'l', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::_softmax'], ['aten::_softmax_backward_data']],
+  "targets": [['built-in method softmax of Tensor', 'aten::_softmax'], ['aten::_softmax_backward_data']],
   "first_n_column": 4, 
 
   # mp, b, h, l
