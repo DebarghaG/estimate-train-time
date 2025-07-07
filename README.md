@@ -13,11 +13,27 @@ The software environment is determined by the specific training frameworks emplo
    pip install -r requirements.txt
    ```
 
+Or you can only install the pacakges for estimator, if you already have sampling data.
+   
+   ```bash
+   cd distributed_training_estimator_of_LLM/Estimator
+   pip install -r requirements-estimator.txt
+   ```
+
 ### Predictor
-In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the `example_training_config` folder, there are two example configuration YAML files. The `regressors` folder contains the required data obtained from two real clusters as examples. This can run on any CPU from the past five years, as it only relies on Random Forest and XGBoost.
+In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the `target_config` folder, there are two example configuration YAML files. The `regressors` folder contains the required data obtained from two real clusters as examples. This can run on any CPU from the past five years, as it only relies on Random Forest and XGBoost.
    ```bash
    cd Estimator
    python mml_3d_prediction.py --config_path <path_to_config.yml>
+   ```
+Commands to run two example configurations, providing sampling data of Perlmutter and Vista in `Estimator/regressors`.
+   ```bash
+   cd Estimator
+   # One batch runtime estimator about llemma-7B with 4 pipline, 2 model and 2 data parallelism ways on Perlmutter. 
+   python mml_3d_prediction.py --config_path ./target_config/llemma_7b_4_2_2_P.yml
+
+   # One batch runtime estimator about llemma-7B with 4 pipline, 2 model and 2 data parallelism ways on Vista. 
+   python mml_3d_prediction.py --config_path ./target_config/llemma_7b_4_2_2_V.yml
    ```
 
 The output can also be obtained using the function.
