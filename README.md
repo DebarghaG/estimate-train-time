@@ -34,6 +34,9 @@ Commands to run two example configurations, providing sampling data of Perlmutte
 
    # One batch runtime estimator about llemma-7B with 4 pipline, 2 model and 2 data parallelism ways on Vista. 
    python mml_3d_prediction.py --config_path ./target_config/llemma_7b_4_2_2_V.yml
+
+   # And will print out a message in the terminal like this:
+   Estimated timecost of current training configs is 9480819.171239894 us.
    ```
 
 The output can also be obtained using the function.
