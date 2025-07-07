@@ -36,11 +36,14 @@ load()
 import scaled_upper_triang_masked_softmax_cuda
 
 
+
 def layernorm(shapes, precision, device_num):
     b, l, dim = shapes
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -52,6 +55,9 @@ def layernorm(shapes, precision, device_num):
     if precision == 'fp16':
         layernorm.weight.data = layernorm.weight.data.half()
         layernorm.bias.data = layernorm.weight.data.half()
+    elif precision == 'bf16':
+        layernorm.weight.data = layernorm.weight.data.bfloat16()
+        layernorm.bias.data = layernorm.weight.data.bfloat16()
 
     layernorm.to(device_num)
 
@@ -94,6 +100,8 @@ def fillmask(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -125,9 +133,10 @@ def softmax(shapes, precision, device_num):
     if h % mp != 0:
         raise ValueError("head is not divisible by mp!")
     
-
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -156,6 +165,8 @@ def baddbmm(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -186,6 +197,8 @@ def bmm(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -207,6 +220,8 @@ def linear1(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -216,6 +231,8 @@ def linear1(shapes, precision, device_num):
 
     if precision == 'fp16':
         linear = nn.Linear(dim, dim*3 // mp).to(device_num).half()
+    elif precision == 'bf16':
+        linear = nn.Linear(dim, dim*3 // mp).to(device_num).to(torch.bfloat16)
     else:
         linear = nn.Linear(dim, dim*3 // mp).to(device_num)
     
@@ -231,9 +248,11 @@ def linear2(shapes, precision, device_num):
 
     if dim % mp != 0:
         raise ValueError("dim is not divisible by mp!")
-
+   
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -242,6 +261,8 @@ def linear2(shapes, precision, device_num):
 
     if precision == 'fp16':
         linear = nn.Linear(dim//mp, dim, bias=False).to(device_num).half()
+    elif precision == 'bf16':
+        linear = nn.Linear(dim//mp, dim, bias=False).to(device_num).to(torch.bfloat16)
     else:
         linear = nn.Linear(dim//mp, dim, bias=False).to(device_num)
     
@@ -259,6 +280,8 @@ def linear3(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -267,6 +290,8 @@ def linear3(shapes, precision, device_num):
 
     if precision == 'fp16':
         linear = nn.Linear(dim, dim*4//mp, bias=False).to(device_num).half()
+    elif precision == 'bf16':
+        linear = nn.Linear(dim, dim*4//mp, bias=False).to(device_num).to(torch.bfloat16)
     else:
         linear = nn.Linear(dim, dim*4//mp, bias=False).to(device_num)
     
@@ -284,6 +309,8 @@ def linear4(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -292,6 +319,8 @@ def linear4(shapes, precision, device_num):
 
     if precision == 'fp16':
         linear = nn.Linear(dim*4//mp, dim, bias=False).to(device_num).half()
+    elif precision == 'bf16':
+        linear = nn.Linear(dim*4//mp, dim, bias=False).to(device_num).to(torch.bfloat16)
     else:
         linear = nn.Linear(dim*4//mp, dim, bias=False).to(device_num)
     
@@ -310,6 +339,8 @@ def gelu(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -341,9 +372,11 @@ def RoPE(shapes, precision, device_num):
         raise ValueError("dim is not divisible by head!")
 
     if precision == 'fp16':
-        dtype = torch.half
+        dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
-        dtype = torch.float
+        dtype = torch.float32
     
     # h: hidden size
     # n: number of attention heads
@@ -397,6 +430,8 @@ def linear_final(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -410,6 +445,8 @@ def linear_final(shapes, precision, device_num):
 
     if precision == 'fp16':
         linear = nn.Linear(dim, partition_vocab_size, bias=False).to(device_num).half()
+    elif precision == 'bf16':
+        linear = nn.Linear(dim, partition_vocab_size, bias=False).to(device_num).to(torch.bfloat16)
     else:
         linear = nn.Linear(dim, partition_vocab_size, bias=False).to(device_num)
     
@@ -467,6 +504,8 @@ def parallel_cross_entropy_128(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -495,6 +534,8 @@ def embedding(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -528,9 +569,11 @@ def flash_atten(shapes, precision, device_num):
         raise ValueError("dim is not divisible by head!")
 
     if precision == 'fp16':
-        dtype = torch.half
+        dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
-        dtype = torch.float
+        dtype = torch.float32
 
     # q: (batch_size, seqlen, nheads, headdim)
     # k: (batch_size, seqlen, nheads_k, headdim)
@@ -587,6 +630,8 @@ def RMSlayernorm(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -612,6 +657,8 @@ def res_add(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -629,6 +676,8 @@ def ScaledUpperTriangMaskedSoftmax(shapes, precision, device_num):
     
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -656,6 +705,8 @@ def firstStage_optimizer(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -694,6 +745,8 @@ def middleStage_optimizer(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -728,6 +781,8 @@ def lastStage_optimizer(shapes, precision, device_num):
 
     if precision == 'fp16':
         dtype = torch.float16
+    elif precision == 'bf16':
+        dtype = torch.bfloat16
     else:
         dtype = torch.float32
 
@@ -755,6 +810,31 @@ def lastStage_optimizer(shapes, precision, device_num):
     )
 
     optimizer.step()
+
+
+
+def moe(shapes, precision, device_num):
+    mp, b, l, dim, moe_num_experts, intermediate_size, top_k = shapes
+
+    if dim % mp != 0:
+        raise ValueError("dim is not divisible by mp!")
+    if moe_num_experts % mp != 0:
+        raise ValueError("experts is not divisible by mp!")
+    if (mp * top_k) > moe_num_experts:
+        raise ValueError("invalide mp and top_k values!")
+    if precision != 'bf16':
+        raise ValueError("moe only supports for bf16!")
+    if intermediate_size > dim*4:
+        raise ValueError("too large intermediate_size!")
+
+    input = torch.randn((l//mp, b, dim), device=0, dtype=torch.bfloat16, requires_grad=True)
+    target = torch.randn((l//mp, b, dim), device=0, dtype=torch.bfloat16, requires_grad=True)
+
+    moe = get_moe_object(shapes).to(device_num)
+    output, _ = moe(input)
+
+    loss = nn.MSELoss()(output, target)
+    loss.backward()
 
 
 

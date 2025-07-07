@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export TORCH_CUDA_ARCH_LIST="9.0"
 export TORCH_EXTENSIONS_DIR=/mnt/rds/VipinRDS/VipinRDS/users/bxz297/H200/torch_extensions
 
 root_path="/mnt/rds/VipinRDS/VipinRDS/users/bxz297/H200/distributed_training_estimator_of_LLM/Kernel_sampling"
@@ -14,7 +15,7 @@ python $root_path/sampling_controller.py --config_path $root_path/configs/test/l
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/linear_final.yml --precision fp16
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/linear1.yml --precision fp16
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/linear2.yml --precision fp16
-python $root_path/sampling_controller.py --config_path $root_path/configs/test/linear3.yml --precision fp16
+python $root_path/sampling_controller.py --config_path $root_path/configs/test/linear3.yml --precision fp16pip 
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/linear4.yml --precision fp16
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/RoPE.yml --precision fp16
 python $root_path/sampling_controller.py --config_path $root_path/configs/test/softmax.yml --precision fp16

@@ -15,15 +15,6 @@ class TransformerEncoder(nn.Module):
                 nn.Linear(dim, dim*4//mp, bias=False).half(),
                 nn.Linear(dim*4//mp, dim, bias=False).half()
             )
-        elif precision == 'bf16':
-            self.encoder = nn.Sequential(
-                self.get_layernorm([dim], precision),
-                nn.Linear(dim, dim*3 // mp).to(torch.bfloat16),
-                nn.Linear(dim//mp, dim, bias=False).to(torch.bfloat16),
-                self.get_layernorm([dim], precision),
-                nn.Linear(dim, dim*4//mp, bias=False).to(torch.bfloat16),
-                nn.Linear(dim*4//mp, dim, bias=False).to(torch.bfloat16)
-            )
         else:
             self.encoder = nn.Sequential(
                 self.get_layernorm([dim], precision),
@@ -39,9 +30,6 @@ class TransformerEncoder(nn.Module):
         if precision == 'fp16':
             layernorm.weight.data = layernorm.weight.data.half()
             layernorm.bias.data = layernorm.weight.data.half()
-        elif precision == 'bf16':
-            layernorm.weight.data = layernorm.weight.data.bfloat16()
-            layernorm.bias.data = layernorm.weight.data.bfloat16()
         return layernorm
     
     def forward(self, x):
@@ -64,8 +52,6 @@ class FirstStage(nn.Module):
         
         if precision == 'fp16':
             self.embedding = nn.Embedding(num_embeddings=self.partition_vocab_size, embedding_dim=dim).to(dtype=torch.float16)
-        elif precision == 'bf16':
-            self.embedding = nn.Embedding(num_embeddings=self.partition_vocab_size, embedding_dim=dim).to(dtype=torch.bfloat16)
         else:
             self.embedding = nn.Embedding(num_embeddings=self.partition_vocab_size, embedding_dim=dim).to(dtype=torch.float32)
 
@@ -101,8 +87,6 @@ class LastStage(nn.Module):
 
         if precision == 'fp16':
             self.final_linear = nn.Linear(dim, self.partition_vocab_size//mp, bias=False).half()
-        elif precision == 'bf16':
-            self.final_linear = nn.Linear(dim, self.partition_vocab_size//mp, bias=False).to(torch.bfloat16)
         else:
             self.final_linear = nn.Linear(dim, self.partition_vocab_size//mp, bias=False)
 
@@ -112,9 +96,6 @@ class LastStage(nn.Module):
         if precision == 'fp16':
             layernorm.weight.data = layernorm.weight.data.half()
             layernorm.bias.data = layernorm.weight.data.half()
-        elif precision == 'bf16':
-            layernorm.weight.data = layernorm.weight.data.bfloat16()
-            layernorm.bias.data = layernorm.weight.data.bfloat16()
         return layernorm
 
 

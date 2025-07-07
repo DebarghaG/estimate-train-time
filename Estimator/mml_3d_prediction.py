@@ -205,7 +205,7 @@ def pp_partitions(encoders, pp):
     return [math.ceil(layers/pp)-2, math.floor(layers/pp), math.floor(layers/pp)-3]
 
 
-def one_batch_predict(configs_path):
+def one_batch_predict(config_path):
     configs = tools.config_decoder(config_path)
 
     predictor = Predictor()
