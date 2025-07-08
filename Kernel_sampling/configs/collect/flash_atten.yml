@@ -3,11 +3,11 @@
   "kernel_name": "flash_atten",
   "function_name": "flash_atten",
   "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['_flash_attn_forward'], ['autograd::engine::evaluate_function: FlashAttnFuncBackward']],
+  "targets": [['built-in method apply of FunctionMeta object', 'FlashAttnFunc'], ['autograd::engine::evaluate_function: FlashAttnFuncBackward']],
   "first_n_column": 5, 
 
   # mp, b, h, l, dim
-  "starts":[8, 4, 16, 1024, 2048],
+  "starts":[1, 4, 16, 1024, 2048],
   "steps":[2, 2, 8, 512, 512],
   "ends":[16, 8, 80, 5120, 8192],
   "operators":['mul', 'mul', 'add', 'add', 'add'],

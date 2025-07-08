@@ -3,7 +3,7 @@
   "kernel_name": "RMSlayernorm",
   "function_name": "RMSlayernorm",
   "columns_name": ['b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['nn.Module: RMSNorm', ['aten::norm', 'aten::mul', 'aten::add', 'aten::div']], ['torch/autograd/__init__.py(103): backward', ['autograd::engine::evaluate_function: MulBackward0', 'autograd::engine::evaluate_function: DivBackward0', 'autograd::engine::evaluate_function: NormBackward']]],
+  "targets": [['nn.Module: RMSNorm'], ['built-in method run_backward of torch', ['autograd::engine::evaluate_function: ToCopyBackward0', 'autograd::engine::evaluate_function: MulBackward0', 'autograd::engine::evaluate_function: DivBackward0', 'autograd::engine::evaluate_function: LinalgVectorNormBackward0']]],
   "first_n_column": 3, 
 
   # b, l, dim

@@ -3,7 +3,7 @@
   "kernel_name": "embedding",
   "function_name": "embedding",
   "columns_name": ['mp', 'b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::embedding'], ['aten::embedding_backward']],
+  "targets": [['built-in method embedding of type object', 'aten::embedding'], ['aten::embedding_backward']],
   "first_n_column": 4, 
 
   # 'mp', 'b', 'l', 'dim'

@@ -3,7 +3,7 @@
   "kernel_name": "baddbmm",
   "function_name": "baddbmm",
   "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::baddbmm'], ['BaddbmmBackward0']],
+  "targets": [['built-in method baddbmm of type object', 'aten::baddbmm'], ['autograd::engine::evaluate_function: BaddbmmBackward0']],
   "first_n_column": 5, 
 
   # mp, b, h, l, dim
@@ -24,6 +24,10 @@
   "wait": 4,
   "warmup": 6,
 
+  # "wait": 1,
+  # "warmup": 0,
+
+
   # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
   "active": 10,
 
@@ -35,4 +39,4 @@
 }
 
 # test command
-# python sampling_controller.py --config_path ./configs/collect/baddbmm.yml --precision fp16 
+# python sampling_controller.py --config_path ./configs/test/baddbmm.yml --precision fp32 --precision fp16 

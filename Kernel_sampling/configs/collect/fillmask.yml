@@ -3,7 +3,7 @@
   "kernel_name": "fillmask",
   "function_name": "fillmask",
   "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['aten::masked_fill_'], ['built-in method run_backward of torch', ['AsStridedBackward0', 'torch::autograd::CopySlices']]],
+  "targets": [['built-in method masked_fill_ of', 'aten::masked_fill_'], ['built-in method run_backward of torch', ['AsStridedBackward0', 'torch::autograd::CopySlices']]],
   "first_n_column": 5, 
 
   # mp, b, h, l, dim

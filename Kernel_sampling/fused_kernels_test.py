@@ -39,3 +39,4 @@ if __name__ == "__main__":
     shapes = [1, 4, 4, 1024]
     precision = 'fp16'
     ScaledUpperTriangMaskedSoftmax(shapes, precision, 0)
+    print("ScaledUpperTriangMaskedSoftmax executed successfully!")

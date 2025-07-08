@@ -1,15 +1,15 @@
 {
   "module_name": "target_functions",
-  "kernel_name": "bmm",
-  "function_name": "bmm",
-  "columns_name": ['mp', 'b', 'h', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
-  "targets": [['built-in method bmm of', 'aten::bmm'], ['autograd::engine::evaluate_function: BmmBackward0', 'BmmBackward0']],
+  "kernel_name": "moe",
+  "function_name": "moe",
+  "columns_name": ['mp', 'b', 'l', 'dim', 'moe_num_experts', 'intermediate_size', 'top_k', 'F_dur(us)', 'B_dur(us)'],
+  "targets": [['built-in method baddbmm of type object', 'aten::baddbmm'], ['autograd::engine::evaluate_function: BaddbmmBackward0']],
   "first_n_column": 5, 
 
-  # mp, b, h, l, dim
-  "starts":[1, 4, 16, 1024, 2048],
-  "steps":[2, 2, 8, 512, 512],
-  "ends":[16, 8, 80, 5120, 8192],
+  # mp, b, l, dim, moe_num_experts, intermediate_size, top_k
+  "starts":[1, 4, 1024, 2048, 2, 2, 1],
+  "steps":[2, 2, 512, 512, 2, 2, 2],
+  "ends":[128, 8, 5120, 8192, 160, 2, 16],
   "operators":['mul', 'mul', 'add', 'add', 'add'],
   
   # mp [1 ~ 16]  mul 2, 5, 
@@ -24,6 +24,10 @@
   "wait": 4,
   "warmup": 6,
 
+  # "wait": 1,
+  # "warmup": 0,
+
+
   # must > 5, number of sample for get_profiler and for get_one and get_all to caculate the avrage time cost
   "active": 10,
 
@@ -35,4 +39,4 @@
 }
 
 # test command
-# python sampling_controller.py --config_path ./configs/test/bmm.yml --precision fp32 --precision fp16 
+# python sampling_controller.py --config_path ./configs/test/baddbmm.yml --precision fp32 --precision fp16 
