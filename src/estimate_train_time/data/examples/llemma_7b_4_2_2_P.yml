@@ -1,0 +1,20 @@
+{
+  "gpu_name": "NVIDIAA100-SXM4-80GB",
+  "operator_data_folder": "./regressors/Perlmutter/operator",
+  "nccl_data_folder": "./regressors/Perlmutter/nccl",
+
+  # pp, mp, dp, b, h, l, dim, steps_per_update, gpus_per_node
+  "training_config": [4, 2, 2, 4, 32, 4096, 4096, 8, 4],
+  "comm_bucket": 1260000000,
+  "encoders": 32, 
+
+  "function_list":['embedding', 'RMSlayernorm', 'linear1', 'RoPE', 'flash_atten', 'linear2', 'linear3', 'gelu', 'linear4', 'linear_final', 'parallel_cross_entropy_128', 'res_add'],
+  "encoder_function_list":['RMSlayernorm', 'linear1', 'RoPE', 'flash_atten', 'linear2', 'RMSlayernorm', 'res_add', 'linear3', 'gelu', 'linear4', 'res_add'],
+  "layernorm_name":'RMSlayernorm',
+
+  "fwd_syncs":2,
+  "bwd_syncs":2,
+}
+
+# test command
+# python mml_3d_prediction.py --config_path ./example_training_config/llemma_7b_4_2_2_P.yml

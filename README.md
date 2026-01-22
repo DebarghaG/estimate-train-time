@@ -1,95 +1,72 @@
-# Distributed Training Estimator of LLMs
-This component implements a time cost estimator for distributed training of large language models (LLMs). It is used to predict the time required to train one batch across multiple GPUs. The predictor module only requires at least a CPU. The computation sampling module needs one or more GPUs, while the communication sampling module requires multiple GPUs, depending on your computing platform.
-- AI4CI
+# estimate-train-time
 
+[![PyPI version](https://badge.fury.io/py/estimate-train-time.svg)](https://badge.fury.io/py/estimate-train-time)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# Tutorials
+**Predict distributed LLM training time before you run.** This tool estimates the wall-clock time for training large language models across multiple GPUs using 3D parallelism (pipeline, tensor, and data parallelism), helping you plan capacity and compare parallelization strategies without expensive trial runs.
 
-### Enviroment
-The software environment is determined by the specific training frameworks employed, such as the versions of CUDA, PyTorch, FlashAttention, and others. While the `requirements.txt` file enumerates the necessary packages, it is the user's responsibility to specify the appropriate versions required for their use case.
+## Installation
 
-   ```bash
-   cd distributed_training_estimator_of_LLM
-   pip install -r requirements.txt
-   ```
+```bash
+pip install estimate-train-time
+```
 
-Or you can only install the pacakges for estimator, if you already have sampling data.
-   
-   ```bash
-   cd distributed_training_estimator_of_LLM/Estimator
-   pip install -r requirements-estimator.txt
-   ```
+## Quick Start
 
-### Predictor
-In order to run Predictor, the training configurations, computing and communication operators' sampling data are required. In the `target_config` folder, there are two example configuration YAML files. The `regressors` folder contains the required data obtained from two real clusters as examples. This can run on any CPU from the past five years, as it only relies on Random Forest and XGBoost.
-   ```bash
-   cd Estimator
-   python mml_3d_prediction.py --config_path <path_to_config.yml>
-   ```
-Commands to run two example configurations, providing sampling data of Perlmutter and Vista in `Estimator/regressors`.
-   ```bash
-   cd Estimator
-   # One batch runtime estimator about llemma-7B with 4 pipline, 2 model and 2 data parallelism ways on Perlmutter. 
-   python mml_3d_prediction.py --config_path ./target_config/llemma_7b_4_2_2_P.yml
+```bash
+# List available example configurations
+estimate-train-time list-examples
 
-   # One batch runtime estimator about llemma-7B with 4 pipline, 2 model and 2 data parallelism ways on Vista. 
-   python mml_3d_prediction.py --config_path ./target_config/llemma_7b_4_2_2_V.yml
+# Run prediction with a bundled example (Llama 7B on A100s)
+estimate-train-time predict --example llemma_7b_4_2_2_P
+```
 
-   # And will print out a message in the terminal like this:
-   Estimated timecost of current training configs is 9480819.171239894 us.
-   ```
+Output:
+```
+Estimated time cost of current training config: 9480819.17 us
+                                               = 9480.82 ms
+                                               = 9.4808 s
+```
 
-The output can also be obtained using the function.
-   ```python
-   from mml_3d_prediction import one_batch_predict
+## Features
 
-   configs_path = 'path_to/training_config.yml'
-   one_batch_cost = one_batch_predict(configs_path)   # microseconds
-   ```
+- **3D Parallelism Support**: Pipeline, tensor (model), and data parallelism
+- **Pre-trained Regressors**: Bundled models for NVIDIA A100 and GH200 GPUs
+- **No GPU Required**: Predictions run on CPU using trained regressors
+- **Extensible**: Add your own GPU profiles and cluster configurations
 
-The output is the estimated time cost of a single parameter update, measured in microseconds.
+## Documentation
 
+- [Getting Started](docs/getting-started.md) - Installation and first prediction
+- [Core Concepts](docs/concepts.md) - Understanding distributed training estimation
+- [Configuration Reference](docs/configuration.md) - Config file parameters
+- [CLI Reference](docs/cli-reference.md) - Command-line options
+- [Python API](docs/python-api.md) - Programmatic usage
+- [Examples](docs/examples/) - Usage examples and custom configurations
+- [Advanced](docs/advanced/) - Kernel sampling and extending the tool
 
-### Computation Sampling
-The computing operator sampling module requires the configuration of each operator in the form of a YAML file. The `/configs/collect` and `/configs/test` directories provide details about the configuration files. This can be run on a single GPU or multiple GPUs.
-   ```bash
-   cd Kernel_sampling
-   ## For example sampling the baddbmm with fp16 
-   python sampling_controller.py --config_path ./configs/collect/baddbmm.yml --precision fp16 
-   ```
-The files `run_collection.sh` and `run_test.sh` contain details about how to test and collect the sampling data for each operator. The `--parts` option specifies how many parts the sampling work should be split into, and the `--part` option specifies which part of the work is being processed on current GPU.
+## Python API
 
+```python
+from estimate_train_time import one_batch_predict
 
-### Communication Sampling
-This part, like the Operator Sampling, also requires the configuration of each communication operator in the form of a YAML file. The `/configs/collect` and `/configs/test` directories provide details about the configuration files. The example shows how to collect P2P communication between two nodes, with only one GPU being active on each node. 
-   ```bash
-    # Get master address and port
-    nodes=( $( scontrol show hostnames $SLURM_JOB_NODELIST ) )
-    nodes_array=($nodes)
-    head_node=${nodes_array[0]}
-    head_node_ip=$(srun --nodes=1 --ntasks=1 -w "$head_node" hostname --ip-address)
+# Predict training time from a config file
+time_us = one_batch_predict("path/to/config.yml")
+print(f"One batch takes {time_us / 1e6:.2f} seconds")
+```
 
-    # Get the number of nodes
-    NNODES=$(scontrol show hostname $SLURM_NODELIST | wc -l)
+## Requirements
 
-    # Active GPU 0 of each node
-    srun --export=ALL,CUDA_VISIBLE_DEVICES=0 torchrun \
-    --nnodes $NNODES \
-    --nproc_per_node 1 \
-    --rdzv_id $RANDOM \
-    --rdzv_backend c10d \
-    --rdzv_endpoint $head_node_ip:29500 \
-    sampling_controller.py \
-    --config_path ./configs/test/p2p.yml \
-    --precision fp16 \
-    --parts 1 \
-    --part 1
-   ```
+- Python 3.8+
+- pandas, numpy, scikit-learn, xgboost, pyyaml
 
+For GPU sampling (optional): torch, flash-attn, deepspeed
 
-
-
-
-### Acknowledgements
+## Acknowledgements
 
 *National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)*
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

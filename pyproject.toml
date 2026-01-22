@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "estimate-train-time"
+version = "0.1.0"
+description = "Distributed training time estimator for Large Language Models"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "AI4CI"}
+]
+keywords = ["llm", "distributed-training", "time-estimation", "machine-learning"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "xgboost",
+    "pyyaml",
+    "ijson",
+    "joblib",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "torch",
+    "flash-attn>=2.5.6",
+    "deepspeed",
+]
+dev = [
+    "pytest",
+    "build",
+    "twine",
+]
+
+[project.scripts]
+estimate-train-time = "estimate_train_time.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/AI4CI/estimate-train-time"
+Repository = "https://github.com/AI4CI/estimate-train-time"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"estimate_train_time.data" = ["**/*.csv", "**/*.yml", "**/*.yaml"]

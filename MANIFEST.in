@@ -1,0 +1,3 @@
+include LICENSE
+include README.md
+recursive-include src/estimate_train_time/data *.csv *.yml *.yaml
