@@ -75,6 +75,19 @@ For GPU sampling (optional): torch, flash-attn, deepspeed
 
 *National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)*
 
+## Citation
+
+If you use this tool in your research, please cite our paper, accepted to **HiPC 2025** (proceedings forthcoming):
+
+```bibtex
+@article{zhang2025efficient,
+  title={Efficient Fine-Grained GPU Performance Modeling for Distributed Deep Learning of LLM},
+  author={Zhang, Biyao and Zheng, Mingkai and Ganguly, Debargha and Zhang, Xuecen and Singh, Vikash and Chaudhary, Vipin and Zhang, Zhao},
+  journal={arXiv preprint arXiv:2509.22832},
+  year={2025}
+}
+```
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
