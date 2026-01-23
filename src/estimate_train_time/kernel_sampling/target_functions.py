@@ -27,6 +27,8 @@ from megatron.norms import RMSNorm
 
 from megatron.stage_simulator import FirstStage, MiddleStage, LastStage
 
+from megatron_moe.moe_tools import get_moe_object
+
 import deepspeed
 from deepspeed.ops.adam import FusedAdam
 

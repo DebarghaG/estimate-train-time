@@ -5,7 +5,15 @@ This document describes the Python API for estimate-train-time.
 ## Installation
 
 ```bash
-pip install estimate-train-time
+pip install estimate-train-time  # Coming soon to PyPI
+```
+
+**Note:** PyPI package is coming soon. For now, install directly from the repository:
+
+```bash
+git clone https://github.com/AI4CI/estimate-train-time.git
+cd estimate-train-time
+pip install -e .
 ```
 
 ## Quick Start
@@ -249,32 +257,32 @@ Utilities for accessing bundled data paths.
 ### get_data_path
 
 ```python
-def get_data_path() -> Path
+def get_data_path()
 ```
 
 Get the path to the bundled data directory.
 
-**Returns:** Path object to the data directory.
+**Returns:** Path-like object to the data directory. Use `str()` to convert to a string path.
 
 ### get_regressors_path
 
 ```python
-def get_regressors_path() -> Path
+def get_regressors_path()
 ```
 
 Get the path to the bundled regressors directory.
 
-**Returns:** Path object to the regressors directory.
+**Returns:** Path-like object to the regressors directory. Use `str()` to convert to a string path.
 
 ### get_examples_path
 
 ```python
-def get_examples_path() -> Path
+def get_examples_path()
 ```
 
 Get the path to the bundled examples directory.
 
-**Returns:** Path object to the examples directory.
+**Returns:** Path-like object to the examples directory. Use `str()` to convert to a string path.
 
 **Example:**
 
@@ -338,6 +346,18 @@ Get path to bundled regressor data.
 | `cluster_name` | `str` | Optional cluster name (e.g., 'Perlmutter', 'Vista') |
 
 **Returns:** String path to regressors directory or cluster subdirectory.
+
+## Module: estimate_train_time.estimator
+
+The estimator subpackage exports additional modules that can be useful for advanced usage:
+
+```python
+from estimate_train_time.estimator import tools
+from estimate_train_time.estimator import mml_3d_prediction
+```
+
+- `tools` - Utility functions documented above
+- `mml_3d_prediction` - Extended 3D parallelism prediction functions (see [Advanced: Extending](advanced/extending.md))
 
 ## Usage Patterns
 

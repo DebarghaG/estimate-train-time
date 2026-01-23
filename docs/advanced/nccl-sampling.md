@@ -22,7 +22,15 @@ These profiles capture the relationship between message size, topology, and tran
 ### Software
 
 ```bash
-pip install estimate-train-time[gpu]
+pip install estimate-train-time[gpu]  # Coming soon to PyPI
+```
+
+**Note:** For now, install from repository with GPU extras:
+
+```bash
+git clone https://github.com/AI4CI/estimate-train-time.git
+cd estimate-train-time
+pip install -e ".[gpu]"
 ```
 
 Additional requirements:
@@ -71,18 +79,19 @@ For SLURM-based clusters:
 ### Directory Structure
 
 ```
-NCCL_sampling/
-├── configs/
-│   ├── collect/     # Full parameter sweeps
-│   │   ├── allreduce.yml
-│   │   ├── allgather.yml
-│   │   ├── reducescatter.yml
-│   │   └── p2p.yml
-│   └── test/        # Quick tests
-│       └── ...
-├── nccl_functions.py
-├── sampling_controller.py
-└── tensor_shape_generator.py
+src/estimate_train_time/
+├── nccl_sampling/
+│   ├── nccl_functions.py
+│   ├── sampling_controller.py
+│   ├── sampling_tools.py
+│   └── tensor_shape_generator.py
+└── data/configs/nccl_sampling/
+    └── test/        # Test configurations
+        ├── allreduce.yml
+        ├── allreduce_large.yml
+        ├── allgather_large.yml
+        ├── reducescatter_large.yml
+        └── p2p.yml
 ```
 
 ### Configuration Structure
@@ -97,10 +106,10 @@ Example: `allreduce.yml`
   "function_name": "allreduce",
 
   # Output columns
-  "columns_name": ['shape', 'nodes', 'gpus_per_node', 'dur(us)'],
+  "columns_name": ['shape', 'nodes', 'GPUsPerNode', 'dur(us)'],
 
   # Profiler targets
-  "targets": [['ncclKernel_AllReduce']],
+  "targets": [['c10d::allreduce_']],
 
   # Parameters
   "first_n_column": 1,
@@ -111,14 +120,13 @@ Example: `allreduce.yml`
   "ends": [134217728],         # ~134M elements
   "operators": ['add'],
 
-  "warmup_shapes": [1048576],  # 1M elements for warmup
+  "warmup_shapes": [67108864],  # ~67M elements for warmup
 
-  "wait": 2,
-  "warmup": 2,
+  "wait": 4,
+  "warmup": 6,
   "active": 10,
 
-  "shapes": [20971520],
-  "run": "collecter"
+  "shapes": [67108864],
 }
 ```
 
@@ -131,7 +139,8 @@ Different operations use different shape ranges:
 | allreduce (small) | 20M | 134M | Tensor parallel activation sync |
 | allreduce (large) | 134M | 1.2B | Data parallel gradient sync |
 | allgather | 134M | 1.2B | ZeRO parameter gathering |
-| p2p | 20M | 134M | Pipeline parallelism |
+| reducescatter | 134M | 1.2B | ZeRO gradient distribution |
+| p2p | 2M | 20M | Pipeline parallelism |
 
 ## Running Sampling
 
@@ -140,7 +149,7 @@ Different operations use different shape ranges:
 Test within one node:
 
 ```bash
-cd NCCL_sampling
+cd src/estimate_train_time/nccl_sampling
 
 # 2 GPUs on 1 node
 torchrun \
@@ -150,7 +159,7 @@ torchrun \
     --rdzv_backend c10d \
     --rdzv_endpoint localhost:29500 \
     sampling_controller.py \
-    --config_path ./configs/test/allreduce.yml \
+    --config_path ../data/configs/nccl_sampling/test/allreduce.yml \
     --precision fp16 \
     --parts 1 \
     --part 1
@@ -163,7 +172,7 @@ torchrun \
     --rdzv_backend c10d \
     --rdzv_endpoint localhost:29500 \
     sampling_controller.py \
-    --config_path ./configs/test/allreduce.yml \
+    --config_path ../data/configs/nccl_sampling/test/allreduce.yml \
     --precision fp16 \
     --parts 1 \
     --part 1
@@ -181,7 +190,7 @@ For multi-node profiling with SLURM:
 #SBATCH --time=6:00:00
 #SBATCH --job-name=nccl_sampling
 
-cd NCCL_sampling
+cd src/estimate_train_time/nccl_sampling
 
 # Get master node info
 nodes=( $( scontrol show hostnames $SLURM_JOB_NODELIST ) )
@@ -199,7 +208,7 @@ srun --export=ALL torchrun \
     --rdzv_backend c10d \
     --rdzv_endpoint $head_node_ip:29500 \
     sampling_controller.py \
-    --config_path ./configs/collect/allreduce.yml \
+    --config_path ../data/configs/nccl_sampling/test/allreduce.yml \
     --precision fp16 \
     --parts 1 \
     --part 1
@@ -216,7 +225,7 @@ P2P requires exactly 2 processes:
 #SBATCH --gpus-per-node=1
 #SBATCH --time=3:00:00
 
-cd NCCL_sampling
+cd src/estimate_train_time/nccl_sampling
 
 # Get master info
 nodes=( $( scontrol show hostnames $SLURM_JOB_NODELIST ) )
@@ -233,7 +242,7 @@ srun --export=ALL,CUDA_VISIBLE_DEVICES=0 torchrun \
     --rdzv_backend c10d \
     --rdzv_endpoint $head_node_ip:29500 \
     sampling_controller.py \
-    --config_path ./configs/collect/p2p.yml \
+    --config_path ../data/configs/nccl_sampling/test/p2p.yml \
     --precision fp16 \
     --parts 1 \
     --part 1
@@ -253,7 +262,7 @@ def allreduce(shapes, precision):
     dtype = torch.float16 if precision == 'fp16' else torch.float32
     local_rank = int(os.environ['LOCAL_RANK'])
 
-    tensor = torch.rand(shapes, dtype=dtype, device=local_rank)
+    tensor = torch.rand(shapes, dtype=dtype, device=local_rank, requires_grad=False)
     dist.all_reduce(tensor, op=dist.ReduceOp.SUM)
 ```
 
@@ -265,10 +274,9 @@ Gathers tensors from all ranks. Used for ZeRO optimizer parameter gathering.
 def allgather(shapes, precision):
     dtype = torch.float16 if precision == 'fp16' else torch.float32
     local_rank = int(os.environ['LOCAL_RANK'])
-    world_size = int(os.environ['WORLD_SIZE'])
 
-    tensor = torch.rand(shapes, dtype=dtype, device=local_rank)
-    gather_list = [torch.zeros_like(tensor) for _ in range(world_size)]
+    tensor = torch.rand(shapes, dtype=dtype, device=local_rank, requires_grad=False)
+    gather_list = [torch.zeros_like(tensor) for _ in range(int(os.environ['WORLD_SIZE']))]
     dist.all_gather(gather_list, tensor)
 ```
 
@@ -280,12 +288,11 @@ Reduces and scatters result. Used for ZeRO gradient distribution.
 def reducescatter(shapes, precision):
     dtype = torch.float16 if precision == 'fp16' else torch.float32
     local_rank = int(os.environ['LOCAL_RANK'])
-    world_size = int(os.environ['WORLD_SIZE'])
 
-    chunk_size = shapes[0] // world_size
-    input_tensor = torch.rand(shapes, dtype=dtype, device=local_rank)
-    output_tensor = torch.zeros([chunk_size], dtype=dtype, device=local_rank)
-    input_list = list(input_tensor.chunk(world_size))
+    chunk_size = shapes[0] // int(os.environ['WORLD_SIZE'])
+    input_tensor = torch.rand(shapes, dtype=dtype, device=local_rank, requires_grad=False)
+    output_tensor = torch.zeros([chunk_size], dtype=dtype, device=local_rank, requires_grad=False)
+    input_list = list(input_tensor.chunk(int(os.environ['WORLD_SIZE'])))
 
     dist.reduce_scatter(output_tensor, input_list, op=dist.ReduceOp.SUM)
 ```
@@ -301,7 +308,7 @@ def p2p(shapes, precision):
     global_rank = int(os.environ['RANK'])
     world_size = int(os.environ['WORLD_SIZE'])
 
-    tensor = torch.rand(shapes, dtype=dtype, device=local_rank)
+    tensor = torch.rand(shapes, dtype=dtype, device=local_rank, requires_grad=False)
 
     if global_rank == 0:
         dist.send(tensor=tensor, dst=world_size-1)
@@ -337,10 +344,10 @@ Example: `NVIDIAA100-SXM4-80GB_allreduce_fp16_2_4.csv`
 
 ### Raw Data
 
-CSV files in `NCCL_sampling/sampling_data/`:
+CSV files are saved to `sampling_data/` in the current working directory:
 
 ```csv
-shape,nodes,gpus_per_node,dur(us)
+shape,nodes,GPUsPerNode,dur(us)
 20971520,2,4,1234.5
 21037056,2,4,1240.2
 ...
@@ -348,7 +355,7 @@ shape,nodes,gpus_per_node,dur(us)
 
 ### Progress Logs
 
-Log files in `NCCL_sampling/sampling_log/`:
+Log files are saved to `sampling_log/` in the current working directory:
 
 ```
 Kernel: allreduce_fp16 | Progress: 500/2000=25.00% | Speed: 0.45s/sample | Remaining: 0d0h11m15s
@@ -374,9 +381,9 @@ merged = merged.sort_values('shape')
 merged.to_csv("NVIDIAA100-SXM4-80GB_allreduce_fp16_2_4.csv", index=False)
 ```
 
-### Organize for Estimator
+### Organize for Prediction
 
-The estimator expects files in this structure:
+The prediction module expects files in this structure:
 
 ```
 regressors/

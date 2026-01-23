@@ -15,7 +15,7 @@ The tool can be extended in several ways:
 
 ### Step 1: Implement the Operator
 
-Create the operator function in `Kernel_sampling/target_functions.py`:
+Create the operator function in `src/estimate_train_time/kernel_sampling/target_functions.py`:
 
 ```python
 def my_new_operator(shapes, precision, device_num):
@@ -86,7 +86,7 @@ def my_new_operator(input):
 
 ### Step 3: Create Sampling Configuration
 
-Create `Kernel_sampling/configs/collect/my_new_operator.yml`:
+Create `src/estimate_train_time/data/configs/kernel_sampling/collect/my_new_operator.yml`:
 
 ```yaml
 {
@@ -98,9 +98,10 @@ Create `Kernel_sampling/configs/collect/my_new_operator.yml`:
   "columns_name": ['mp', 'b', 'l', 'dim', 'F_dur(us)', 'B_dur(us)'],
 
   # Profiler trace targets - find these by running get_profiler mode
+  # Multiple names per entry allow matching alternate kernel names
   "targets": [
-    ['my_kernel_forward_name'],
-    ['autograd::engine::evaluate_function: MyOpBackward']
+    ['my_kernel_forward_name', 'aten::my_op'],  # Forward pass
+    ['autograd::engine::evaluate_function: MyOpBackward']  # Backward pass
   ],
 
   "first_n_column": 4,
@@ -123,21 +124,21 @@ Create `Kernel_sampling/configs/collect/my_new_operator.yml`:
 ### Step 4: Run Profiling
 
 ```bash
-cd Kernel_sampling
+cd src/estimate_train_time/kernel_sampling
 
 # Test first
 python sampling_controller.py \
-    --config_path ./configs/collect/my_new_operator.yml \
+    --config_path ../data/configs/kernel_sampling/collect/my_new_operator.yml \
     --precision fp16
 
 # Full collection
 python sampling_controller.py \
-    --config_path ./configs/collect/my_new_operator.yml \
+    --config_path ../data/configs/kernel_sampling/collect/my_new_operator.yml \
     --precision fp16 \
     --parts 4 --part 1
 ```
 
-### Step 5: Update Estimator Config
+### Step 5: Update Prediction Config
 
 Add the operator to your training config:
 
@@ -155,12 +156,12 @@ Add the operator to your training config:
 Profile all operators on the new GPU:
 
 ```bash
-cd Kernel_sampling
+cd src/estimate_train_time/kernel_sampling
 
 # Run for each operator
 for op in embedding layernorm linear1 linear2 linear3 linear4 flash_atten gelu; do
     python sampling_controller.py \
-        --config_path ./configs/collect/${op}.yml \
+        --config_path ../data/configs/kernel_sampling/collect/${op}.yml \
         --precision fp16
 done
 ```
@@ -168,7 +169,7 @@ done
 ### Step 2: Profile Communication
 
 ```bash
-cd NCCL_sampling
+cd src/estimate_train_time/nccl_sampling
 
 # Intra-node configurations
 torchrun --nnodes 1 --nproc_per_node 2 ... sampling_controller.py ...
@@ -417,21 +418,31 @@ estimate-train-time/
 │   ├── cli.py                   # CLI implementation
 │   ├── estimator/
 │   │   ├── prediction.py        # Core prediction logic
+│   │   ├── mml_3d_prediction.py # 3D parallelism prediction
 │   │   ├── predictor.py         # Predictor class
 │   │   ├── encoder_config_to_layer_input.py
 │   │   ├── layer_input_to_predictor_input.py
 │   │   └── tools.py
+│   ├── kernel_sampling/
+│   │   ├── sampling_controller.py
+│   │   ├── target_functions.py  # Operator implementations
+│   │   └── megatron_moe/        # MoE implementations
+│   ├── nccl_sampling/
+│   │   ├── sampling_controller.py
+│   │   └── nccl_functions.py    # Communication operations
 │   └── data/
+│       ├── configs/
+│       │   ├── kernel_sampling/ # Kernel sampling configs
+│       │   │   ├── collect/
+│       │   │   ├── profilers/
+│       │   │   └── test/
+│       │   └── nccl_sampling/   # NCCL sampling configs
+│       │       └── test/
 │       ├── examples/            # Bundled example configs
 │       └── regressors/          # Bundled regressor data
-├── Kernel_sampling/
-│   ├── sampling_controller.py
-│   ├── target_functions.py      # Operator implementations
-│   └── configs/
-└── NCCL_sampling/
-    ├── sampling_controller.py
-    ├── nccl_functions.py        # Communication operations
-    └── configs/
+└── scripts/
+    ├── kernel_sampling/         # Shell scripts for kernel profiling
+    └── nccl_sampling/           # Shell scripts for NCCL profiling
 ```
 
 ## See Also

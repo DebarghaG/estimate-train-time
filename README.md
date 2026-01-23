@@ -9,7 +9,15 @@
 ## Installation
 
 ```bash
-pip install estimate-train-time
+pip install estimate-train-time  # Coming soon to PyPI
+```
+
+**Note:** PyPI package is coming soon. For now, install directly from the repository:
+
+```bash
+git clone https://github.com/AI4CI/estimate-train-time.git
+cd estimate-train-time
+pip install -e .
 ```
 
 ## Quick Start
@@ -59,7 +67,7 @@ print(f"One batch takes {time_us / 1e6:.2f} seconds")
 ## Requirements
 
 - Python 3.8+
-- pandas, numpy, scikit-learn, xgboost, pyyaml
+- pandas, numpy, scikit-learn, xgboost, pyyaml, ijson, joblib
 
 For GPU sampling (optional): torch, flash-attn, deepspeed
 

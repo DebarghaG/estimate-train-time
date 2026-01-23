@@ -22,7 +22,15 @@ Kernel sampling profiles individual GPU operators (embedding, attention, linear 
 Install the GPU dependencies:
 
 ```bash
-pip install estimate-train-time[gpu]
+pip install estimate-train-time[gpu]  # Coming soon to PyPI
+```
+
+**Note:** For now, install from repository with GPU extras:
+
+```bash
+git clone https://github.com/AI4CI/estimate-train-time.git
+cd estimate-train-time
+pip install -e ".[gpu]"
 ```
 
 Or manually:
@@ -63,10 +71,11 @@ Required environment:
 
 ## Configuration Files
 
-Sampling is controlled by YAML configuration files. Two directories exist:
+Sampling is controlled by YAML configuration files in the package data directory:
 
-- `Kernel_sampling/configs/collect/` - Full parameter sweeps
-- `Kernel_sampling/configs/test/` - Quick test configurations
+- `src/estimate_train_time/data/configs/kernel_sampling/collect/` - Full parameter sweeps
+- `src/estimate_train_time/data/configs/kernel_sampling/test/` - Quick test configurations
+- `src/estimate_train_time/data/configs/kernel_sampling/profilers/` - Profiler configurations
 
 ### Configuration Structure
 
@@ -109,7 +118,7 @@ Example: `flash_atten.yml`
   # Test/debug shapes
   "shapes": [1, 4, 16, 1024, 2048],
 
-  # Run mode: get_all, get_one, get_profiler
+  # Run mode: get_all, get_one, get_profiler, run_function
   "run": "get_all"
 }
 ```
@@ -129,14 +138,16 @@ Example for `mp`:
 
 ## Running Sampling
 
+**Note:** Kernel sampling must be run from the source directory due to relative imports in `sampling_controller.py`. Clone the repository and run from `src/estimate_train_time/kernel_sampling/`. The pip-installed package does not currently support running the sampling scripts directly.
+
 ### Single Operator Test
 
 Test with a specific shape:
 
 ```bash
-cd Kernel_sampling
+cd src/estimate_train_time/kernel_sampling
 python sampling_controller.py \
-    --config_path ./configs/test/flash_atten.yml \
+    --config_path ../data/configs/kernel_sampling/test/flash_atten.yml \
     --precision fp16
 ```
 
@@ -145,9 +156,9 @@ python sampling_controller.py \
 Run complete parameter sweep:
 
 ```bash
-cd Kernel_sampling
+cd src/estimate_train_time/kernel_sampling
 python sampling_controller.py \
-    --config_path ./configs/collect/flash_atten.yml \
+    --config_path ../data/configs/kernel_sampling/collect/flash_atten.yml \
     --precision fp16
 ```
 
@@ -183,12 +194,12 @@ CUDA_VISIBLE_DEVICES=1 python sampling_controller.py \
 #SBATCH --time=6:00:00
 #SBATCH --job-name=kernel_sampling
 
-cd Kernel_sampling
+cd src/estimate_train_time/kernel_sampling
 
 # Run 4 parallel sampling jobs
 for i in 1 2 3 4; do
     CUDA_VISIBLE_DEVICES=$((i-1)) python sampling_controller.py \
-        --config_path ./configs/collect/flash_atten.yml \
+        --config_path ../data/configs/kernel_sampling/collect/flash_atten.yml \
         --precision fp16 \
         --parts 4 \
         --part $i \
@@ -219,20 +230,26 @@ The following operators can be profiled:
 | `RoPE` | Rotary embeddings | mp, b, h, l, dim |
 | `res_add` | Residual addition | b, l, dim |
 | `parallel_cross_entropy_128` | Parallel CE loss | mp, b, l |
+| `softmax` | Softmax operation | mp, b, h, l |
+| `fillmask` | Attention mask filling | mp, b, h, l, dim |
+| `baddbmm` | Batch add + matrix mult | mp, b, h, l, dim |
+| `bmm` | Batch matrix multiply | mp, b, h, l, dim |
+| `ScaledUpperTriangMaskedSoftmax` | Fused masked softmax | mp, b, h, l |
+| `moe` | Mixture of Experts | mp, b, l, dim, moe_num_experts, intermediate_size, top_k |
 
 ### Optimizer Operators
 
-| Operator | Description |
-|----------|-------------|
-| `firstStage_optimizer` | Optimizer for first pipeline stage |
-| `middleStage_optimizer` | Optimizer for middle stages |
-| `lastStage_optimizer` | Optimizer for last pipeline stage |
+| Operator | Description | Shape Parameters |
+|----------|-------------|------------------|
+| `firstStage_optimizer` | Optimizer for first pipeline stage | mp, dim, encoders |
+| `middleStage_optimizer` | Optimizer for middle stages | mp, dim, encoders |
+| `lastStage_optimizer` | Optimizer for last pipeline stage | mp, dim, encoders |
 
 ## Output Files
 
 ### Raw Data
 
-Sampling data is saved to `Kernel_sampling/sampling_data/`:
+Sampling data is saved to `sampling_data/` in the current working directory:
 
 ```
 {GPU_NAME}_{operator}_{precision}_{parts}_{part}.csv
@@ -250,7 +267,7 @@ mp,b,h,l,dim,F_dur(us),B_dur(us)
 
 ### Progress Logs
 
-Logs are saved to `Kernel_sampling/sampling_log/`:
+Logs are saved to `sampling_log/` in the current working directory:
 
 ```
 {GPU_NAME}_{operator}_{precision}_{parts}_{part}.txt
@@ -288,24 +305,35 @@ merged.to_csv("NVIDIAA100-SXM4-80GB_flash_atten_fp16.csv", index=False)
 
 ### Train Regressors
 
-The estimator automatically trains regressors when first needed. To pre-train:
+The estimator automatically trains regressors when first needed. Place merged CSV files in the appropriate regressor data folder and ensure a configuration CSV exists with model hyperparameters.
 
 ```python
 from estimate_train_time.estimator.predictor import Predictor
-import pandas as pd
 
-# Load sampling data
-data_path = "NVIDIAA100-SXM4-80GB_flash_atten_fp16.csv"
-df = pd.read_csv(data_path)
-
-# Split features and targets
-X = df.iloc[:, :-2].values  # All columns except last 2
-y_fwd = df['F_dur(us)'].values
-y_bwd = df['B_dur(us)'].values
-
-# Create predictor and trigger model building
+# Create predictor instance
 predictor = Predictor()
-# Models will be built on first prediction request
+
+# Predict operator timing (models are built/loaded automatically)
+# Required parameters:
+#   - gpu_name: GPU identifier (e.g., "NVIDIAA100-SXM4-80GB")
+#   - function: operator name (e.g., "flash_atten")
+#   - precision: "fp16", "bf16", or "fp32"
+#   - propagation: "fwd" or "bwd"
+#   - shape: input shape as list (e.g., [1, 4, 32, 2048, 4096])
+#   - model_dict: dictionary to cache loaded models
+#   - config_folder: path to folder with model config CSV
+#   - data_folder: path to folder with sampling data CSV files
+
+result = predictor.predict_operator(
+    gpu_name="NVIDIAA100-SXM4-80GB",
+    function="flash_atten",
+    precision="fp16",
+    propagation="fwd",
+    shape=[1, 4, 32, 2048, 4096],
+    model_dict=predictor.operator_dict,
+    config_folder="path/to/config",
+    data_folder="path/to/data"
+)
 ```
 
 ## Custom Operators
@@ -314,7 +342,7 @@ To add a new operator:
 
 ### 1. Implement the Operator Function
 
-Create in `Kernel_sampling/target_functions.py`:
+Create in `src/estimate_train_time/kernel_sampling/target_functions.py`:
 
 ```python
 def my_custom_op(shapes, precision, device_num):
@@ -339,7 +367,7 @@ def my_custom_op(shapes, precision, device_num):
 
 ### 2. Create Shape Transform Functions
 
-In `encoder_config_to_layer_input.py`:
+In `src/estimate_train_time/estimator/encoder_config_to_layer_input.py`:
 
 ```python
 def my_custom_op(input):
@@ -348,7 +376,7 @@ def my_custom_op(input):
     return np.array([mp, b, l, dim])
 ```
 
-In `layer_input_to_predictor_input.py`:
+In `src/estimate_train_time/estimator/layer_input_to_predictor_input.py`:
 
 ```python
 def my_custom_op(input):
@@ -359,7 +387,7 @@ def my_custom_op(input):
 
 ### 3. Create Sampling Config
 
-Create `configs/collect/my_custom_op.yml`:
+Create `src/estimate_train_time/data/configs/kernel_sampling/collect/my_custom_op.yml`:
 
 ```yaml
 {
@@ -385,8 +413,9 @@ Create `configs/collect/my_custom_op.yml`:
 ### 4. Run Sampling
 
 ```bash
+cd src/estimate_train_time/kernel_sampling
 python sampling_controller.py \
-    --config_path ./configs/collect/my_custom_op.yml \
+    --config_path ../data/configs/kernel_sampling/collect/my_custom_op.yml \
     --precision fp16
 ```
 

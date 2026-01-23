@@ -55,7 +55,15 @@ The tool works by combining profiled operator timings with an analytical model o
 Install the package:
 
 ```bash
-pip install estimate-train-time
+pip install estimate-train-time  # Coming soon to PyPI
+```
+
+**Note:** PyPI package is coming soon. For now, install directly from the repository:
+
+```bash
+git clone https://github.com/AI4CI/estimate-train-time.git
+cd estimate-train-time
+pip install -e .
 ```
 
 Run a prediction with a bundled example:

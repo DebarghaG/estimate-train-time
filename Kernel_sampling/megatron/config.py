@@ -1,2 +1,0 @@
-RANK = 0
-WORLD_SIZE = 1

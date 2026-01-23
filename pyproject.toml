@@ -59,4 +59,4 @@ Repository = "https://github.com/AI4CI/estimate-train-time"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"estimate_train_time.data" = ["**/*.csv", "**/*.yml", "**/*.yaml"]
+"estimate_train_time.data" = ["**/*.csv", "**/*.yml", "**/*.yaml", "**/*.pkl", "**/*.json"]
