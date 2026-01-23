@@ -11,7 +11,7 @@ pip install estimate-train-time  # Coming soon to PyPI
 **Note:** PyPI package is coming soon. For now, install directly from the repository:
 
 ```bash
-git clone https://github.com/AI4CI/estimate-train-time.git
+git clone https://github.com/DebarghaG/estimate-train-time.git
 cd estimate-train-time
 pip install -e .
 ```

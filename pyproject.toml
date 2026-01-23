@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 authors = [
-    {name = "AI4CI"}
+    {name = "DebarghaG"}
 ]
 keywords = ["llm", "distributed-training", "time-estimation", "machine-learning"]
 classifiers = [
@@ -52,8 +52,8 @@ dev = [
 estimate-train-time = "estimate_train_time.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/AI4CI/estimate-train-time"
-Repository = "https://github.com/AI4CI/estimate-train-time"
+Homepage = "https://github.com/DebarghaG/estimate-train-time"
+Repository = "https://github.com/DebarghaG/estimate-train-time"
 
 [tool.setuptools.packages.find]
 where = ["src"]
